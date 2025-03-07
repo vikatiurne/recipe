@@ -31,14 +31,11 @@ const RecipeDetail: React.FC<Props> = ({ params }) => {
     const fetchRecipe = async () => {
       if (recipeId) {
         try {
-          console.log(`Fetching recipe with ID: ${recipeId}`);
           const fetchedRecipe = await getRecipeById(recipeId);
-          console.log("Fetched recipe:", fetchedRecipe);
           if (isMounted) {
             setRecipe(fetchedRecipe);
           }
         } catch (err) {
-          console.error(err);
           if (isMounted) {
             setError("Error loading recipe");
           }
@@ -71,11 +68,11 @@ const RecipeDetail: React.FC<Props> = ({ params }) => {
           <img
             src={recipe.strMealThumb ?? "/placeholder.png"}
             alt={recipe.strMeal}
-            className="w-full rounded-lg shadow-md"
+            className="w-full rounded-lg shadow-md "
           />
         </div>
         <div>
-          <h1 className="text-2xl font-bold mb-2">{recipe.strMeal}</h1>
+          <h1 className="text-2xl font-bold mb-2 text-center">{recipe.strMeal}</h1>
           <Link
             href={`/?country=${recipe.strArea}`}
             className="text-blue-500 hover:underline block mb-4"

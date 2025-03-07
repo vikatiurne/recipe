@@ -14,7 +14,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
       <img
         src={recipe.strMealThumb}
         alt={recipe.strMeal}
-        className="w-full h-48 object-cover"
+        className="w-full h-60 object-contain"
       />
       <div className="p-4">
         <h3 className="text-lg font-semibold">{recipe.strMeal}</h3>

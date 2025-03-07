@@ -11,7 +11,7 @@ interface Props {
 
 const Sidebar: React.FC<Props> = ({ categories, onFilterChange }) => {
   return (
-    <div className="bg-gray-100 p-4 rounded-lg">
+    <div className="bg-gray-100 p-4 rounded-lg w-64">
       <h2 className="text-lg font-semibold mb-2">Categories</h2>
       <ul>
         {categories.map((category) => (
