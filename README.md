@@ -42,3 +42,6 @@ Make sure you have the following installed on your machine:
     npm run dev
    
 The frontend server will run on http://localhost:3000.
+
+## API Documentation
+For information on the available APIs and how to use them, please refer to the [Postman API documentation] https://documenter.getpostman.com/view/38241762/2sAYdoE7Wc
