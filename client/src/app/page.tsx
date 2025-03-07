@@ -5,6 +5,8 @@ import Sidebar from "../app/components/Sidebar";
 import RecipeCard from "../app/components/RecipeCard";
 import { Recipe, Ingredient } from "../app/types/recipe";
 import { getAllRecipes } from "../app/utils/api";
+import { extractIngredients } from "./utils/extractIngredients";
+import FilterInput from "./components/UI/FilterInput";
 
 interface Filters {
   category?: string;
@@ -44,6 +46,8 @@ const MainPage: React.FC = () => {
 
   const filterRecipes = (recipes: Recipe[], filters: Filters): Recipe[] => {
     return recipes.filter((recipe) => {
+      const ingredients = extractIngredients(recipe);
+
       const categoryMatch =
         !filters.category ||
         recipe.strCategory
@@ -56,7 +60,7 @@ const MainPage: React.FC = () => {
 
       const ingredientMatch =
         !filters.ingredient ||
-        recipe.ingredients?.some((ingredient) =>
+        ingredients.some((ingredient) =>
           doesIngredientMatch(ingredient, filters.ingredient!)
         );
 
@@ -70,7 +74,7 @@ const MainPage: React.FC = () => {
   }, [recipes, filters]);
 
   const handleFilterChange = (filter: Filters) => {
-    setFilters((prevFilters) => ({ ...prevFilters, ...filter }));
+    setFilters(filter);
   };
 
   const handleShowMore = () => {
@@ -84,38 +88,29 @@ const MainPage: React.FC = () => {
         onFilterChange={handleFilterChange}
       />
       <div className="p-4 flex-1">
-        <h1 className="text-2xl font-bold mb-4">Recipe List</h1>
+        <h1 className="text-2xl font-bold mb-4">
+          Recipe List{" "}
+          {filters.category ?? filters.country ?? filters.ingredient}
+        </h1>
 
         <div className="mb-4">
-          <label htmlFor="category">Category:</label>
-          <input
-            type="text"
+          <FilterInput
+            label="Category"
             id="category"
-            className="ml-2 p-1 border rounded"
             value={filters.category ?? ""}
-            onChange={(e) => handleFilterChange({ category: e.target.value })}
+            onChange={(value) => handleFilterChange({ category: value })}
           />
-
-          <label htmlFor="country" className="ml-4">
-            Country:
-          </label>
-          <input
-            type="text"
+          <FilterInput
+            label="Country"
             id="country"
-            className="ml-2 p-1 border rounded"
             value={filters.country ?? ""}
-            onChange={(e) => handleFilterChange({ country: e.target.value })}
+            onChange={(value) => handleFilterChange({ country: value })}
           />
-
-          <label htmlFor="ingredient" className="ml-4">
-            Ingredient:
-          </label>
-          <input
-            type="text"
+          <FilterInput
+            label="Ingredient"
             id="ingredient"
-            className="ml-2 p-1 border rounded"
             value={filters.ingredient ?? ""}
-            onChange={(e) => handleFilterChange({ ingredient: e.target.value })}
+            onChange={(value) => handleFilterChange({ ingredient: value })}
           />
         </div>
 
