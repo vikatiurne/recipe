@@ -11,7 +11,7 @@ interface Props {
   params: { id: string | string[] };
 }
 
-const RecipeDetail: React.FC<Props> = ({ params }) => {
+const RecipeDetail: React.FC<Props> = () => {
   const { id } = useParams();
   const recipeId = Array.isArray(id) ? id[0] : id;
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -63,7 +63,7 @@ const RecipeDetail: React.FC<Props> = ({ params }) => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
           <img
             src={recipe.strMealThumb ?? "/placeholder.png"}
@@ -72,7 +72,9 @@ const RecipeDetail: React.FC<Props> = ({ params }) => {
           />
         </div>
         <div>
-          <h1 className="text-2xl font-bold mb-2 text-center">{recipe.strMeal}</h1>
+          <h1 className="text-3xl font-bold mb-2 text-center">
+            {recipe.strMeal}
+          </h1>
           <Link
             href={`/?country=${recipe.strArea}`}
             className="text-blue-500 hover:underline block mb-4"
@@ -80,25 +82,33 @@ const RecipeDetail: React.FC<Props> = ({ params }) => {
             {recipe.strArea} Recipes
           </Link>
 
-          <h2 className="text-lg font-semibold mb-2">Instructions:</h2>
-          <p className="text-gray-700">
+          <h2 className="text-2xl font-semibold mb-2 text-center">
+            Instructions:
+          </h2>
+          <p className="text-gray-700 text-xl mb-3">
             {showFullInstructions
               ? recipe.strInstructions
-              : `${recipe.strInstructions?.slice(0, 100)}...`}{" "}
+              : `${recipe.strInstructions?.slice(0, 400)}...`}{" "}
+            <button
+              onClick={toggleInstructions}
+              className="text-blue-500 hover:underline "
+            >
+              {showFullInstructions ? "show in short" : "show more"}
+            </button>
           </p>
-          <button
-            onClick={toggleInstructions}
-            className="text-blue-500 hover:underline mt-2"
-          >
-            {showFullInstructions ? "show in short" : "show more"}
-          </button>
 
           <h2 className="text-lg font-semibold mb-2">Ingredients:</h2>
           <ul className="list-disc list-inside">
             {ingredients.map((ingredient, index) => (
-              <li key={index} className="text-gray-700">
-                {ingredient.measure} {ingredient.name}
-              </li>
+              <Link
+                key={index}
+                href={`/?ingredient=${ingredient.name}`}
+                className="text-gray-500 hover:underline block mb-2"
+              >
+                <li>
+                  {ingredient.measure} {ingredient.name}
+                </li>
+              </Link>
             ))}
           </ul>
         </div>

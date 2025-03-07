@@ -19,3 +19,8 @@ export interface Recipe {
   dateModified: string | null;
   ingredients: Ingredient[];
 }
+
+export interface Meal {
+  id: string;
+  name: string;
+}

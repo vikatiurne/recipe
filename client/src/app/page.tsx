@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Sidebar from "../app/components/Sidebar";
 import RecipeCard from "../app/components/RecipeCard";
-import { Recipe, Ingredient } from "../app/types/recipe";
+import { Recipe, Ingredient, Meal } from "../app/types/recipe";
 import { getAllRecipes } from "../app/utils/api";
 import { extractIngredients } from "./utils/extractIngredients";
 import FilterInput from "./components/UI/FilterInput";
@@ -15,12 +16,19 @@ interface Filters {
 }
 
 const MainPage: React.FC = () => {
+  const searchParams = useSearchParams();
+  const country = searchParams.get("country");
+  const ingredient = searchParams.get("ingredient");
+
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({});
   const [visibleCount, setVisibleCount] = useState<number>(9);
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
+  const [arrBySelectedCategory, setArrBySelectedCategory] = useState<Meal[]>(
+    []
+  );
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -71,7 +79,28 @@ const MainPage: React.FC = () => {
   useEffect(() => {
     const result = filterRecipes(recipes, filters);
     setFilteredRecipes(result);
+    const mealNames = result.map((recipe) => ({
+      id: recipe.idMeal,
+      name: recipe.strMeal,
+    }));
+    result.length !== recipes.length
+      ? setArrBySelectedCategory(mealNames)
+      : setArrBySelectedCategory([]);
   }, [recipes, filters]);
+
+  useEffect(() => {
+    if (country) {
+      setFilters({ country: country });
+    }
+  }, [country]);
+
+  useEffect(() => {
+    if (ingredient) {
+      setFilters({ ingredient: ingredient });
+    }
+  }, [country]);
+
+  console.log(country);
 
   const handleFilterChange = (filter: Filters) => {
     setFilters(filter);
@@ -83,17 +112,14 @@ const MainPage: React.FC = () => {
 
   return (
     <div className="flex flex-row-reverse">
-      <Sidebar
-        categories={["Seafood", "Side", "Vegetarian"]}
-        onFilterChange={handleFilterChange}
-      />
-      <div className="p-4 flex-1">
+      <Sidebar categories={arrBySelectedCategory} />
+      <div className="px-4 pt-4 flex-1">
         <h1 className="text-2xl font-bold mb-4">
           Recipe List{" "}
           {filters.category ?? filters.country ?? filters.ingredient}
         </h1>
 
-        <div className="mb-4">
+        <div className="flex flex-wrap">
           <FilterInput
             label="Category"
             id="category"
