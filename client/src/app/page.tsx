@@ -4,9 +4,14 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Sidebar from "../app/components/Sidebar";
 import RecipeCard from "../app/components/RecipeCard";
-import { Recipe, Ingredient, Meal } from "../app/types/recipe";
-import { getAllRecipes } from "../app/utils/api";
-import { extractIngredients } from "./utils/extractIngredients";
+import { Recipe, Meal } from "../app/types/recipe";
+import {
+  getAllRecipes,
+  getRecipesByCategory,
+  getRecipesByCountry,
+  getRecipesByIngredient,
+} from "../app/utils/api";
+
 import FilterInput from "./components/UI/FilterInput";
 
 interface Filters {
@@ -25,17 +30,53 @@ const MainPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({});
   const [visibleCount, setVisibleCount] = useState<number>(9);
-  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
   const [arrBySelectedCategory, setArrBySelectedCategory] = useState<Meal[]>(
     []
   );
-
+  console.log(Object.keys(filters), Object.values(filters)[0]);
   useEffect(() => {
     const fetchRecipes = async () => {
+      setLoading(true);
+
       try {
-        const allRecipes = await getAllRecipes();
-        setRecipes(allRecipes);
-      } catch (err) {
+        let allRecipes;
+        let mealNames;
+
+        if (Object.keys(filters).length === 0) {
+          allRecipes = await getAllRecipes();
+          setArrBySelectedCategory([]);
+        } else {
+          const selectedFilter = Object.keys(filters)[0];
+          const filterKeyword = Object.values(filters)[0];
+
+          console.log(`Ключ: ${selectedFilter}, Значение: ${filterKeyword}`);
+
+          switch (selectedFilter) {
+            case "category":
+              allRecipes = await getRecipesByCategory(filterKeyword);
+              break;
+            case "country":
+              allRecipes = await getRecipesByCountry(filterKeyword);
+              break;
+            case "ingredient":
+              allRecipes = await getRecipesByIngredient(filterKeyword);
+              break;
+            default:
+              allRecipes = await getAllRecipes();
+              break;
+          }
+
+          mealNames = allRecipes?.map((recipe) => ({
+            id: recipe.idMeal,
+            name: recipe.strMeal,
+          }));
+          Object.values(filters)[0] === ""
+            ? setArrBySelectedCategory([])
+            : setArrBySelectedCategory(mealNames);
+        }
+
+        setRecipes(allRecipes ?? []);
+      } catch (error) {
         setError("Error loading");
       } finally {
         setLoading(false);
@@ -43,50 +84,9 @@ const MainPage: React.FC = () => {
     };
 
     fetchRecipes();
-  }, []);
+  }, [filters]);
 
-  const doesIngredientMatch = (
-    ingredient: Ingredient,
-    filter: string
-  ): boolean => {
-    return ingredient.name.toLowerCase().includes(filter.toLowerCase());
-  };
-
-  const filterRecipes = (recipes: Recipe[], filters: Filters): Recipe[] => {
-    return recipes.filter((recipe) => {
-      const ingredients = extractIngredients(recipe);
-
-      const categoryMatch =
-        !filters.category ||
-        recipe.strCategory
-          .toLowerCase()
-          .includes(filters.category.toLowerCase());
-
-      const countryMatch =
-        !filters.country ||
-        recipe.strArea.toLowerCase().includes(filters.country.toLowerCase());
-
-      const ingredientMatch =
-        !filters.ingredient ||
-        ingredients.some((ingredient) =>
-          doesIngredientMatch(ingredient, filters.ingredient!)
-        );
-
-      return categoryMatch && countryMatch && ingredientMatch;
-    });
-  };
-
-  useEffect(() => {
-    const result = filterRecipes(recipes, filters);
-    setFilteredRecipes(result);
-    const mealNames = result.map((recipe) => ({
-      id: recipe.idMeal,
-      name: recipe.strMeal,
-    }));
-    result.length !== recipes.length
-      ? setArrBySelectedCategory(mealNames)
-      : setArrBySelectedCategory([]);
-  }, [recipes, filters]);
+  console.log(recipes);
 
   useEffect(() => {
     if (country) {
@@ -143,11 +143,17 @@ const MainPage: React.FC = () => {
         {loading && <p>Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {filteredRecipes.slice(0, visibleCount).map((recipe) => (
-            <RecipeCard key={recipe.idMeal} recipe={recipe} />
-          ))}
+          {recipes.length !== 0 ? (
+            recipes
+              .slice(0, visibleCount)
+              .map((recipe) => (
+                <RecipeCard key={recipe.idMeal} recipe={recipe} />
+              ))
+          ) : (
+            <p>recipes not found</p>
+          )}
         </div>
-        {visibleCount < filteredRecipes.length && (
+        {visibleCount < recipes.length && (
           <button
             onClick={handleShowMore}
             className="mt-4 p-2 bg-blue-500 text-white rounded"
