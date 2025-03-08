@@ -2,23 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+
+import FilterInput from "./components/UI/FilterInput";
+import RecipeList from "./components/RecipeList";
 import Sidebar from "../app/components/Sidebar";
-import RecipeCard from "../app/components/RecipeCard";
-import { Recipe, Meal } from "../app/types/recipe";
+
+import { Recipe, Meal, Filters } from "../app/types/recipe";
+
 import {
   getAllRecipes,
   getRecipesByCategory,
   getRecipesByCountry,
   getRecipesByIngredient,
 } from "../app/utils/api";
-
-import FilterInput from "./components/UI/FilterInput";
-
-interface Filters {
-  category?: string;
-  country?: string;
-  ingredient?: string;
-}
 
 const MainPage: React.FC = () => {
   const searchParams = useSearchParams();
@@ -33,7 +29,20 @@ const MainPage: React.FC = () => {
   const [arrBySelectedCategory, setArrBySelectedCategory] = useState<Meal[]>(
     []
   );
-  console.log(Object.keys(filters), Object.values(filters)[0]);
+  const [initialLoad, setInitialLoad] = useState(false);
+
+  useEffect(() => {
+    if (country) {
+      setFilters({ country: country });
+      setInitialLoad(true);
+    } else if (ingredient) {
+      setFilters({ ingredient: ingredient });
+      setInitialLoad(true);
+    } else {
+      setInitialLoad(true);
+    }
+  }, [country, ingredient]);
+
   useEffect(() => {
     const fetchRecipes = async () => {
       setLoading(true);
@@ -42,14 +51,15 @@ const MainPage: React.FC = () => {
         let allRecipes;
         let mealNames;
 
-        if (Object.keys(filters).length === 0) {
+        if (
+          Object.keys(filters).length === 0 ||
+          Object.values(filters)[0] === ""
+        ) {
           allRecipes = await getAllRecipes();
           setArrBySelectedCategory([]);
         } else {
           const selectedFilter = Object.keys(filters)[0];
           const filterKeyword = Object.values(filters)[0];
-
-          console.log(`Ключ: ${selectedFilter}, Значение: ${filterKeyword}`);
 
           switch (selectedFilter) {
             case "category":
@@ -65,15 +75,14 @@ const MainPage: React.FC = () => {
               allRecipes = await getAllRecipes();
               break;
           }
-
-          mealNames = allRecipes?.map((recipe) => ({
-            id: recipe.idMeal,
-            name: recipe.strMeal,
-          }));
-          Object.values(filters)[0] === ""
-            ? setArrBySelectedCategory([])
-            : setArrBySelectedCategory(mealNames);
         }
+        mealNames = allRecipes?.map((recipe) => ({
+          id: recipe.idMeal,
+          name: recipe.strMeal,
+        }));
+        Object.values(filters)[0] === ""
+          ? setArrBySelectedCategory([])
+          : setArrBySelectedCategory(mealNames);
 
         setRecipes(allRecipes ?? []);
       } catch (error) {
@@ -83,24 +92,10 @@ const MainPage: React.FC = () => {
       }
     };
 
-    fetchRecipes();
-  }, [filters]);
-
-  console.log(recipes);
-
-  useEffect(() => {
-    if (country) {
-      setFilters({ country: country });
+    if (initialLoad) {
+      fetchRecipes();
     }
-  }, [country]);
-
-  useEffect(() => {
-    if (ingredient) {
-      setFilters({ ingredient: ingredient });
-    }
-  }, [country]);
-
-  console.log(country);
+  }, [filters, initialLoad]);
 
   const handleFilterChange = (filter: Filters) => {
     setFilters(filter);
@@ -114,7 +109,7 @@ const MainPage: React.FC = () => {
     <div className="flex flex-row-reverse">
       <Sidebar categories={arrBySelectedCategory} />
       <div className="px-4 pt-4 flex-1">
-        <h1 className="text-2xl font-bold mb-4">
+        <h1 className="text-2xl font-bold mb-4 capitalize">
           Recipe List{" "}
           {filters.category ?? filters.country ?? filters.ingredient}
         </h1>
@@ -140,27 +135,13 @@ const MainPage: React.FC = () => {
           />
         </div>
 
-        {loading && <p>Loading...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {recipes.length !== 0 ? (
-            recipes
-              .slice(0, visibleCount)
-              .map((recipe) => (
-                <RecipeCard key={recipe.idMeal} recipe={recipe} />
-              ))
-          ) : (
-            <p>recipes not found</p>
-          )}
-        </div>
-        {visibleCount < recipes.length && (
-          <button
-            onClick={handleShowMore}
-            className="mt-4 p-2 bg-blue-500 text-white rounded"
-          >
-            Show more
-          </button>
-        )}
+        <RecipeList
+          recipes={recipes}
+          visibleCount={visibleCount}
+          handleShowMore={handleShowMore}
+          loading={loading}
+          error={error}
+        />
       </div>
     </div>
   );

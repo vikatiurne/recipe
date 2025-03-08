@@ -24,3 +24,9 @@ export interface Meal {
   id: string;
   name: string;
 }
+
+export interface Filters {
+  category?: string;
+  country?: string;
+  ingredient?: string;
+}

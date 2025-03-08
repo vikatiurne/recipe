@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { Recipe, Ingredient } from "../../types/recipe";
-import { extractIngredients } from "../../utils/extractIngredients";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
+
+import { Recipe, Ingredient } from "../../types/recipe";
+import { extractIngredients } from "../../utils/extractIngredients";
 import { getRecipeById } from "../../utils/api";
 
 interface Props {
