@@ -29,7 +29,7 @@ const MainPage: React.FC = () => {
   const [arrBySelectedCategory, setArrBySelectedCategory] = useState<Meal[]>(
     []
   );
-  const [initialLoad, setInitialLoad] = useState(false);
+  const [initialLoad, setInitialLoad] = useState<boolean>(false);
 
   useEffect(() => {
     if (country) {
