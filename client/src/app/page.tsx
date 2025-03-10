@@ -50,23 +50,30 @@ const MainPage: React.FC = () => {
       try {
         let allRecipes;
 
-        const selectedFilter = Object.keys(filters)[0];
-        const filterKeyword = Object.values(filters)[0];
+        if (
+          Object.values(filters)[0] === "" ||
+          Object.keys(filters).length === 0
+        ) {
+          allRecipes = await getAllRecipes();
+          setArrBySelectedCategory([]);
+        } else {
+          const selectedFilter = Object.keys(filters)[0];
+          const filterKeyword = Object.values(filters)[0];
 
-        switch (selectedFilter) {
-          case "category":
-            allRecipes = await getRecipesByCategory(filterKeyword);
-            break;
-          case "country":
-            allRecipes = await getRecipesByCountry(filterKeyword);
-            break;
-          case "ingredient":
-            allRecipes = await getRecipesByIngredient(filterKeyword);
-            break;
-          default:
-            allRecipes = await getAllRecipes();
-            setArrBySelectedCategory([]);
-            break;
+          switch (selectedFilter) {
+            case "category":
+              allRecipes = await getRecipesByCategory(filterKeyword);
+              break;
+            case "country":
+              allRecipes = await getRecipesByCountry(filterKeyword);
+              break;
+            case "ingredient":
+              allRecipes = await getRecipesByIngredient(filterKeyword);
+              break;
+            default:
+              allRecipes = await getAllRecipes();
+              break;
+          }
         }
 
         const mealNames = allRecipes?.map((recipe) => ({
@@ -86,7 +93,7 @@ const MainPage: React.FC = () => {
         setRecipes(allRecipes ?? []);
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setError("Error loading : " + err.message);
+          setError("Error loading: " + err.message);
         } else {
           setError("Error loading recipe: An unknown error occurred");
         }
@@ -112,12 +119,12 @@ const MainPage: React.FC = () => {
     <div className="flex flex-row-reverse">
       <Sidebar categories={arrBySelectedCategory} />
       <div className="px-4 pt-4 flex-1">
-        <h1 className="text-2xl font-bold mb-4 capitalize">
+        <h1 className="text-2xl text-center font-bold mb-10 uppercase">
           Recipe List{" "}
           {filters.category ?? filters.country ?? filters.ingredient}
         </h1>
 
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap justify-center mb-5 gap-4">
           <FilterInput
             label="Category"
             id="category"
@@ -144,6 +151,7 @@ const MainPage: React.FC = () => {
           handleShowMore={handleShowMore}
           loading={loading}
           error={error}
+          filters={filters}
         />
       </div>
     </div>
