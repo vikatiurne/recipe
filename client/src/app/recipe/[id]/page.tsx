@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 
 import { Recipe, Ingredient } from "../../types/recipe";
@@ -36,11 +37,15 @@ const RecipeDetail: React.FC<Props> = () => {
           if (isMounted) {
             setRecipe(fetchedRecipe);
           }
-        } catch (err) {
-          if (isMounted) {
-            setError("Error loading recipe");
-          }
-        } finally {
+        } catch (err: unknown) {  
+          if (isMounted) {  
+            if (err instanceof Error) {  
+              setError("Error loading recipe: " + err.message);  
+            } else {  
+              setError("Error loading recipe: An unknown error occurred");  
+            }  
+          }  
+        }   finally {
           if (isMounted) {
             setLoading(false);
           }
@@ -66,10 +71,13 @@ const RecipeDetail: React.FC<Props> = () => {
     <div className="container mx-auto p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <img
+          <Image
             src={recipe.strMealThumb ?? "/placeholder.png"}
             alt={recipe.strMeal}
             className="w-full rounded-lg shadow-md "
+            width={500}
+            height={500}
+            priority 
           />
         </div>
         <div>

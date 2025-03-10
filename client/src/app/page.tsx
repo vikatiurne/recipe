@@ -49,44 +49,47 @@ const MainPage: React.FC = () => {
 
       try {
         let allRecipes;
-        let mealNames;
 
-        if (
-          Object.keys(filters).length === 0 ||
-          Object.values(filters)[0] === ""
-        ) {
-          allRecipes = await getAllRecipes();
-          setArrBySelectedCategory([]);
-        } else {
-          const selectedFilter = Object.keys(filters)[0];
-          const filterKeyword = Object.values(filters)[0];
+        const selectedFilter = Object.keys(filters)[0];
+        const filterKeyword = Object.values(filters)[0];
 
-          switch (selectedFilter) {
-            case "category":
-              allRecipes = await getRecipesByCategory(filterKeyword);
-              break;
-            case "country":
-              allRecipes = await getRecipesByCountry(filterKeyword);
-              break;
-            case "ingredient":
-              allRecipes = await getRecipesByIngredient(filterKeyword);
-              break;
-            default:
-              allRecipes = await getAllRecipes();
-              break;
-          }
+        switch (selectedFilter) {
+          case "category":
+            allRecipes = await getRecipesByCategory(filterKeyword);
+            break;
+          case "country":
+            allRecipes = await getRecipesByCountry(filterKeyword);
+            break;
+          case "ingredient":
+            allRecipes = await getRecipesByIngredient(filterKeyword);
+            break;
+          default:
+            allRecipes = await getAllRecipes();
+            setArrBySelectedCategory([]);
+            break;
         }
-        mealNames = allRecipes?.map((recipe) => ({
+
+        const mealNames = allRecipes?.map((recipe) => ({
           id: recipe.idMeal,
           name: recipe.strMeal,
         }));
-        Object.values(filters)[0] === ""
-          ? setArrBySelectedCategory([])
-          : setArrBySelectedCategory(mealNames);
+
+        if (
+          Object.values(filters)[0] === "" ||
+          Object.keys(filters).length === 0
+        ) {
+          setArrBySelectedCategory([]);
+        } else {
+          setArrBySelectedCategory(mealNames);
+        }
 
         setRecipes(allRecipes ?? []);
-      } catch (error) {
-        setError("Error loading");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError("Error loading : " + err.message);
+        } else {
+          setError("Error loading recipe: An unknown error occurred");
+        }
       } finally {
         setLoading(false);
       }
