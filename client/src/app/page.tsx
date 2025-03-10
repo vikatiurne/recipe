@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import FilterInput from "./components/UI/FilterInput";
 import RecipeList from "./components/RecipeList";
@@ -18,6 +18,7 @@ import {
 
 const MainPage: React.FC = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const country = searchParams.get("country");
   const ingredient = searchParams.get("ingredient");
 
@@ -109,6 +110,24 @@ const MainPage: React.FC = () => {
 
   const handleFilterChange = (filter: Filters) => {
     setFilters(filter);
+    const newParams = new URLSearchParams(window.location.search);
+    if (filter.category) {
+      newParams.set("category", filter.category);
+    } else {
+      newParams.delete("category");
+    }
+    if (filter.country) {
+      newParams.set("country", filter.country);
+    } else {
+      newParams.delete("country");
+    }
+    if (filter.ingredient) {
+      newParams.set("ingredient", filter.ingredient);
+    } else {
+      newParams.delete("ingredient");
+    }
+
+    router.push(`?${newParams.toString()}`);
   };
 
   const handleShowMore = () => {
@@ -156,7 +175,6 @@ const MainPage: React.FC = () => {
           handleShowMore={handleShowMore}
           loading={loading}
           error={error}
-          filters={filters}
         />
       </div>
     </div>
