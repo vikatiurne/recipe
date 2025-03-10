@@ -1,4 +1,4 @@
-import { Filters, Recipe } from "../types/recipe";
+import { Recipe } from "../types/recipe";
 import RecipeCard from "./RecipeCard";
 
 const RecipeList: React.FC<{
@@ -7,11 +7,10 @@ const RecipeList: React.FC<{
   handleShowMore: () => void;
   loading: boolean;
   error: string | null;
-
 }> = ({ recipes, visibleCount, handleShowMore, loading, error }) => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
-  
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

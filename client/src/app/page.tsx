@@ -117,7 +117,12 @@ const MainPage: React.FC = () => {
 
   return (
     <div className="flex flex-row-reverse">
-      <Sidebar categories={arrBySelectedCategory} />
+      {recipes.length > 0 && (
+        <Sidebar
+          categories={arrBySelectedCategory}
+          filter={Object.values(filters)[0]}
+        />
+      )}
       <div className="px-4 pt-4 flex-1">
         <h1 className="text-2xl text-center font-bold mb-10 uppercase">
           Recipe List{" "}
