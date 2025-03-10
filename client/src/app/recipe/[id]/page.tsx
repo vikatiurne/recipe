@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,15 +37,15 @@ const RecipeDetail: React.FC<Props> = () => {
           if (isMounted) {
             setRecipe(fetchedRecipe);
           }
-        } catch (err: unknown) {  
-          if (isMounted) {  
-            if (err instanceof Error) {  
-              setError("Error loading recipe: " + err.message);  
-            } else {  
-              setError("Error loading recipe: An unknown error occurred");  
-            }  
-          }  
-        }   finally {
+        } catch (err: unknown) {
+          if (isMounted) {
+            if (err instanceof Error) {
+              setError("Error loading recipe: " + err.message);
+            } else {
+              setError("Error loading recipe: An unknown error occurred");
+            }
+          }
+        } finally {
           if (isMounted) {
             setLoading(false);
           }
@@ -67,6 +67,7 @@ const RecipeDetail: React.FC<Props> = () => {
   if (error) return <p className="text-red-500">{error}</p>;
   if (!recipe) return <p>Recipe not found</p>;
 
+  console.log(recipe)
   return (
     <div className="container mx-auto p-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -77,7 +78,7 @@ const RecipeDetail: React.FC<Props> = () => {
             className="w-full rounded-lg shadow-md "
             width={500}
             height={500}
-            priority 
+            priority
           />
         </div>
         <div>

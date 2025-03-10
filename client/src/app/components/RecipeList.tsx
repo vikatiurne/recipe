@@ -1,3 +1,4 @@
+import React from 'react';
 import { Recipe } from "../types/recipe";
 import RecipeCard from "./RecipeCard";
 
